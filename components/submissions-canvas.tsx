@@ -136,16 +136,16 @@ export function SubmissionsCanvas() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="block"
               >
-                I am Cancer's
-              </motion.span>
-              <motion.span
+                I Stand <motion.span
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="block text-primary"
+                className=" text-primary"
               >
-                Nightmare
+                Strong
               </motion.span>
+              </motion.span>
+              
             </h1>
           </motion.div>
 
