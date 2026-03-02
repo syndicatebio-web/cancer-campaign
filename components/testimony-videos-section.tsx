@@ -18,6 +18,11 @@ const survivorVideos = [
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/OCHAI-FULL-2026-02-23T19-17-08.185Z.mp4',
     label: 'Survivor Story 3',
   },
+  {
+    id: 5,
+    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/Main.mp4',
+    label: 'Survivor Story 4',
+  },
 ]
 
 export function TestimonyVideosSection() {
@@ -104,7 +109,7 @@ export function TestimonyVideosSection() {
                 whileHover={{ y: -6, scale: 1.02, boxShadow: '0 16px 30px rgba(0,0,0,0.15)' }}
                 className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/90 backdrop-blur-sm shadow-sm"
               >
-                <video className="w-full h-48 object-cover" controls src={video.file} />
+                <video className="w-full h-72 object-cover" controls src={video.file} />
                 <div className="p-3 flex items-center justify-between text-xs text-muted-foreground">
                   <span className="font-medium text-foreground">{video.label}</span>
                   <span className="px-2 py-0.5 rounded-full bg-muted text-[0.7rem] uppercase tracking-[0.14em]">
