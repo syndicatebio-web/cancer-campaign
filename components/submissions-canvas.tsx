@@ -129,23 +129,23 @@ export function SubmissionsCanvas() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-6"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-4 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-center text-foreground mb-4 leading-tight flex flex-col items-center">
               <motion.span
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="block"
+                className="text-center"
               >
-                I Stand <motion.span
+                "Cancer Does Not 
+              </motion.span>
+              <motion.span
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className=" text-primary"
+                className="text-center text-primary"
               >
-                Strong
+                Have the Final Word."
               </motion.span>
-              </motion.span>
-              
             </h1>
           </motion.div>
 
