@@ -5,25 +5,26 @@ import { motion } from 'framer-motion'
 const survivorVideos = [
   {
     id: 2,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/ESTHER-Single-2026-02-23T18-50-11.655Z.mp4',
-    label: 'Survivor Story 1',
+    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/Main.mp4',
+    label: 'Overview',
   },
   {
     id: 3,
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/MIDE-Single-2026-02-23T19-10-18.805Z.mp4',
-    label: 'Survivor Story 2',
+    label: 'Survivor Story 1',
   },
   {
     id: 4,
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/OCHAI-FULL-2026-02-23T19-17-08.185Z.mp4',
-    label: 'Survivor Story 3',
+    label: 'Survivor Story 2',
   },
   {
     id: 5,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/Main.mp4',
-    label: 'Survivor Story 4',
+    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/ESTHER-Single-2026-02-23T18-50-11.655Z.mp4',
+    label: 'Survivor Story 3',
   },
 ]
+
 
 export function TestimonyVideosSection() {
   return (
