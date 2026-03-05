@@ -1,130 +1,171 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getGoogleAccessToken } from '@/lib/google-auth'
+
+const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
+
+// Single, clear prompt – we no longer use filterType
+const PROMPT =
+  'transform this image to a slightly comic military character, but let it still look like the original image'
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { imageBase64, filterType } = body
+    const { imageBase64 } = body
 
-    if (!imageBase64 || !filterType) {
+    if (!imageBase64) {
       return NextResponse.json(
-        { error: 'imageBase64 and filterType are required' },
+        { error: 'imageBase64 is required' },
         { status: 400 }
       )
     }
 
-    // Use Google Imagen 2 for image generation/editing
-    const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID
-    const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
-    
-    if (!projectId) {
+    const token = process.env.REPLICATE_API_TOKEN
+    const version = process.env.REPLICATE_MODEL_VERSION
+
+    if (!token || !version) {
       return NextResponse.json(
-        { error: 'GOOGLE_CLOUD_PROJECT_ID is not configured on the server' },
+        {
+          error:
+            'REPLICATE_API_TOKEN and REPLICATE_MODEL_VERSION must be configured on the server',
+        },
         { status: 500 }
       )
     }
 
-    // Get access token using Google Auth Library
-    const accessToken = await getGoogleAccessToken()
-
     // Clean base64 string (remove data URL prefix if present)
-    const base64Image = imageBase64.includes(',') 
-      ? imageBase64.split(',')[1] 
+    const base64Image = imageBase64.includes(',')
+      ? imageBase64.split(',')[1]
       : imageBase64
 
-    const prompt = getFilterPrompt(filterType)
-
-    // Imagen 2 API endpoint
-    // Model: imagegeneration@006 (Imagen 2) or imagen-2
-    // Documentation: https://cloud.google.com/vertex-ai/docs/generative-ai/image/overview
-    const model = process.env.IMAGEN_MODEL || 'imagegeneration@006'
-    const imagenUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predict`
-
-    const imagenResponse = await fetch(imagenUrl, {
+    // 1. Create prediction for google/nano-banana (Gemini image model on Replicate)
+    const createRes = await fetch(REPLICATE_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Token ${token}`,
       },
       body: JSON.stringify({
-        instances: [
-          {
-            prompt: prompt,
-            // For image-to-image editing, include the base image
-            image: {
-              bytesBase64Encoded: base64Image,
-            },
-          },
-        ],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: '1:1',
-          safetyFilterLevel: 'block_some',
-          personGeneration: 'allow_all',
+        version,
+        input: {
+          // Model expects this exact input shape:
+          // prompt: string
+          // image_input: array of image URLs or data URIs
+          // aspect_ratio: e.g. 'match_input_image'
+          // output_format: e.g. 'jpg'
+          prompt: PROMPT,
+          image_input: [`data:image/png;base64,${base64Image}`],
+          aspect_ratio: 'match_input_image',
+          output_format: 'jpg',
         },
       }),
     })
 
-    if (!imagenResponse.ok) {
-      let errorBody: unknown = null
-      try {
-        errorBody = await imagenResponse.text()
-      } catch {
-        // ignore
-      }
-      console.error('Imagen 2 API error:', imagenResponse.status, imagenResponse.statusText, errorBody)
+    if (!createRes.ok) {
+      const errorBody = await createRes.text().catch(() => null)
+      console.error(
+        'Replicate create prediction error:',
+        createRes.status,
+        createRes.statusText,
+        errorBody
+      )
       return NextResponse.json(
-        { error: 'Failed to apply filter using Imagen 2 API' },
+        { error: 'Failed to start image transformation with Replicate' },
         { status: 500 }
       )
     }
 
-    const result = await imagenResponse.json()
+    let prediction = await createRes.json()
 
-    // Imagen 2 returns base64 encoded images in the predictions array
-    // Extract image data from the response
-    const imageData = extractImageFromImagenResponse(result) || imageBase64
+    // 2. Poll prediction until it completes or fails
+    const getUrl: string | undefined = prediction.urls?.get
+    if (!getUrl) {
+      console.error('Replicate prediction has no get URL', prediction)
+      return NextResponse.json(
+        { error: 'Replicate prediction did not return a status URL' },
+        { status: 500 }
+      )
+    }
 
+    let attempts = 0
+    const maxAttempts = 20
+
+    while (
+      prediction.status === 'starting' ||
+      prediction.status === 'processing'
+    ) {
+      if (attempts >= maxAttempts) {
+        console.error('Replicate prediction polling timed out', prediction)
+        return NextResponse.json(
+          { error: 'Image transformation timed out. Please try again.' },
+          { status: 504 }
+        )
+      }
+
+      await sleep(1500)
+      attempts += 1
+
+      const pollRes = await fetch(getUrl, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      })
+
+      if (!pollRes.ok) {
+        const errorBody = await pollRes.text().catch(() => null)
+        console.error(
+          'Replicate poll prediction error:',
+          pollRes.status,
+          pollRes.statusText,
+          errorBody
+        )
+        return NextResponse.json(
+          { error: 'Failed while checking Replicate prediction status' },
+          { status: 500 }
+        )
+      }
+
+      prediction = await pollRes.json()
+    }
+
+    if (prediction.status !== 'succeeded') {
+      console.error('Replicate prediction failed', prediction)
+      return NextResponse.json(
+        { error: 'Image transformation failed. Please try again.' },
+        { status: 500 }
+      )
+    }
+
+    const output = prediction.output
+
+    // nano-banana returns either a single URL string or an array of URLs
+    let outputUrl: string | undefined
+    if (typeof output === 'string') {
+      outputUrl = output
+    } else if (Array.isArray(output) && output.length > 0) {
+      outputUrl = output[0]
+    }
+
+    if (!outputUrl) {
+      console.error('Replicate prediction succeeded without usable output', prediction)
+      return NextResponse.json(
+        { error: 'No image URL returned from Replicate' },
+        { status: 500 }
+      )
+    }
+
+    // Frontend expects `image` field
     return NextResponse.json({
-      image: imageData,
-      prompt: prompt,
-      model: model,
+      image: outputUrl,
+      prompt: PROMPT,
+      model: version,
     })
   } catch (error) {
-    console.error('Error applying filter:', error)
+    console.error('Error applying filter with Replicate:', error)
     return NextResponse.json({ error: 'Failed to apply filter' }, { status: 500 })
   }
-}
-
-function extractImageFromImagenResponse(response: any): string | null {
-  try {
-    // Imagen 2 returns images in predictions array
-    // Each prediction has bytesBase64Encoded field
-    if (response.predictions && response.predictions.length > 0) {
-      const firstPrediction = response.predictions[0]
-      if (firstPrediction.bytesBase64Encoded) {
-        return `data:image/png;base64,${firstPrediction.bytesBase64Encoded}`
-      }
-      // Alternative format: might be in mimeType and bytesBase64Encoded separately
-      if (firstPrediction.mimeType && firstPrediction.bytesBase64Encoded) {
-        return `data:${firstPrediction.mimeType};base64,${firstPrediction.bytesBase64Encoded}`
-      }
-    }
-    // If no image data found, return null (will use original image)
-    return null
-  } catch {
-    return null
-  }
-}
-
-function getFilterPrompt(filterType: string): string {
-  const prompts: Record<string, string> = {
-    military: 'Transform this photo into a high-quality anime illustration. Clean line art, large expressive eyes, soft shading, vibrant colors, studio-quality anime style, keep facial features recognizable',
-    defiant: 'Transform this photo into a high-quality anime illustration. Clean line art, large expressive eyes, soft shading, vibrant colors, studio-quality anime style, keep facial features recognizable',
-    warrior: 'Transform this photo into a high-quality anime illustration. Clean line art, large expressive eyes, soft shading, vibrant colors, studio-quality anime style, keep facial features recognizable',
-    fierce: 'Transform this photo into a high-quality anime illustration. Clean line art, large expressive eyes, soft shading, vibrant colors, studio-quality anime style, keep facial features recognizable',
-  }
-  return prompts[filterType] || prompts.defiant
 }
