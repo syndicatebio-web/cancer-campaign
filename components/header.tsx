@@ -19,6 +19,9 @@ export function Header() {
           <a href="#family" className="text-sm text-muted-foreground hover:text-foreground transition">
             Family First
           </a>
+          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground transition">
+            Admin
+          </a>
           <ThemeToggle />
           <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">
             Get Started
