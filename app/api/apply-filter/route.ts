@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-server'
 
 const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions'
+const DEFAULT_BUCKET = 'syndicate-files'
 
 // Single, clear prompt – we no longer use filterType
 const PROMPT =
@@ -80,6 +82,7 @@ export async function POST(request: NextRequest) {
     }
 
     let prediction = await createRes.json()
+    console.log('[Replicate] Create prediction response:', JSON.stringify(prediction, null, 2))
 
     // 2. Poll prediction until it completes or fails
     const getUrl: string | undefined = prediction.urls?.get
@@ -130,6 +133,7 @@ export async function POST(request: NextRequest) {
       }
 
       prediction = await pollRes.json()
+      console.log(`[Replicate] Poll #${attempts} status:`, prediction.status, prediction.id)
     }
 
     if (prediction.status !== 'succeeded') {
@@ -158,9 +162,54 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Frontend expects `image` field
+    console.log('[Replicate] Final prediction (succeeded):', JSON.stringify(prediction, null, 2))
+    console.log('[Replicate] Output URL:', outputUrl)
+
+    // 3. Download image from Replicate (URL expires ~1h), then upload to Supabase Storage
+    if (!supabaseAdmin) {
+      console.error('Supabase not configured; returning expiring Replicate URL')
+      return NextResponse.json({
+        image: outputUrl,
+        prompt: PROMPT,
+        model: version,
+      })
+    }
+
+    const imageRes = await fetch(outputUrl)
+    if (!imageRes.ok) {
+      console.error('Failed to download image from Replicate:', imageRes.status, imageRes.statusText)
+      return NextResponse.json(
+        { error: 'Failed to download transformed image' },
+        { status: 500 }
+      )
+    }
+
+    const arrayBuffer = await imageRes.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const bucket = process.env.SUPABASE_STORAGE_BUCKET ?? DEFAULT_BUCKET
+    const path = `transformed/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.jpg`
+
+    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(path, buffer, {
+        contentType: 'image/jpeg',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('Supabase storage upload error:', uploadError)
+      return NextResponse.json(
+        { error: 'Failed to store image. Please try again.' },
+        { status: 500 }
+      )
+    }
+
+    const { data: urlData } = supabaseAdmin.storage.from(bucket).getPublicUrl(uploadData.path)
+    const permanentUrl = urlData.publicUrl
+    console.log('[Supabase] Stored image:', permanentUrl)
+
     return NextResponse.json({
-      image: outputUrl,
+      image: permanentUrl,
       prompt: PROMPT,
       model: version,
     })

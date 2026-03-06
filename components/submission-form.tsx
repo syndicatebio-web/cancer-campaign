@@ -97,11 +97,14 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-      <h2 className="text-2xl font-bold text-gray-900">Share Your Defiance</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-card text-card-foreground rounded-lg shadow-lg p-6 space-y-4 max-h-[80vh] overflow-y-auto"
+    >
+      <h2 className="text-2xl font-bold">Share Your Defiance</h2>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Your Name
         </label>
         <input
@@ -109,13 +112,13 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your name"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Your Message
         </label>
         <textarea
@@ -123,21 +126,21 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Share your affirmation or message (optional if uploading an image)..."
           rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-4">
+        <label className="block text-sm font-medium text-foreground mb-4">
           Add a Photo (Optional)
         </label>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors"
+          className="w-full border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors bg-background"
         >
-          <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-          <p className="text-gray-600">Click to upload or drag and drop</p>
+          <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
+          <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
         </button>
         <input
           ref={fileInputRef}
@@ -151,7 +154,7 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
       {preview && (
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">Select Filter</p>
+            <p className="text-sm font-medium text-foreground mb-2">Select Filter</p>
             <div className="grid grid-cols-4 gap-2">
               {filters.map((filter) => (
                 <button
@@ -160,8 +163,8 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
                   onClick={() => setSelectedFilter(filter.id)}
                   className={`p-3 rounded-lg font-medium transition-all ${
                     selectedFilter === filter.id
-                      ? 'bg-red-600 text-white ring-2 ring-red-400'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary text-primary-foreground ring-2 ring-primary/60'
+                      : 'bg-muted text-foreground hover:bg-muted/80'
                   }`}
                 >
                   <span className="text-xl">{filter.icon}</span>
@@ -175,7 +178,7 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
             type="button"
             onClick={applyFilter}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
+            className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 disabled:bg-muted flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="animate-spin" size={16} />}
             Apply Filter
@@ -183,12 +186,12 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
 
           <div className="flex gap-4">
             <div className="flex-1">
-              <p className="text-xs text-gray-600 mb-2">Original</p>
+              <p className="text-xs text-muted-foreground mb-2">Original</p>
               <img src={preview || "/placeholder.svg"} alt="Original" className="w-full rounded-lg" />
             </div>
             {filteredImage && (
               <div className="flex-1">
-                <p className="text-xs text-gray-600 mb-2">Filtered</p>
+                <p className="text-xs text-muted-foreground mb-2">Filtered</p>
                 <img src={filteredImage || "/placeholder.svg"} alt="Filtered" className="w-full rounded-lg" />
               </div>
             )}
@@ -199,7 +202,7 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
       <button
         type="submit"
         disabled={loading || !username || (!message && !preview)}
-        className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 disabled:bg-gray-400 font-bold text-lg"
+        className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 disabled:bg-muted font-bold text-lg"
       >
         {loading ? 'Submitting...' : 'Add Your Note'}
       </button>
