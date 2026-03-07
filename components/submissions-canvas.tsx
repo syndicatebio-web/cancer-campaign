@@ -20,6 +20,7 @@ export function SubmissionsCanvas() {
   const [loading, setLoading] = useState(true)
   const [userEngagements, setUserEngagements] = useState<Set<number>>(new Set())
   const [showForm, setShowForm] = useState(false)
+  const [formMode, setFormMode] = useState<'photo' | 'anonymous'>('photo')
 
   useEffect(() => {
     fetchSubmissions()
@@ -193,7 +194,10 @@ export function SubmissionsCanvas() {
                 Upload your photo and share your pledge. We'll transform it into a powerful campaign image.
               </p>
               <motion.button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setFormMode('photo')
+                  setShowForm(true)
+                }}
                 className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -229,7 +233,10 @@ export function SubmissionsCanvas() {
                 Share your message anonymously. Your voice matters, even without a photo.
               </p>
               <motion.button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setFormMode('anonymous')
+                  setShowForm(true)
+                }}
                 className="w-full px-4 py-2 bg-secondary text-secondary-foreground rounded-lg font-semibold"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -291,10 +298,13 @@ export function SubmissionsCanvas() {
       </motion.section>
 
       {/* Canvas Section */}
-      <div className="p-4 md:p-8 relative z-10">
+      <div id="pledges" className="p-4 md:p-8 relative z-10 scroll-mt-20">
         {/* Floating Add Button */}
       <motion.button
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setFormMode('photo')
+          setShowForm(true)
+        }}
         className="fixed bottom-8 right-8 z-50 w-16 h-16 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
         aria-label="Add submission"
         whileHover={{ scale: 1.1, rotate: 90 }}
@@ -573,6 +583,7 @@ export function SubmissionsCanvas() {
                   setShowForm(false)
                   fetchSubmissions()
                 }}
+                allowPhoto={formMode === 'photo'}
               />
             </motion.div>
           </motion.div>

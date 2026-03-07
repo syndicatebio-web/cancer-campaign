@@ -29,9 +29,9 @@ const survivorVideos = [
 export function TestimonyVideosSection() {
   return (
     <section id="stories" className="relative z-10 px-4 md:px-8 py-16 md:py-20">
-      <div className="max-w-6xl mx-auto space-y-12">
+      <div className="max-w-6xl mx-auto space-y-32">
         {/* Jemima Osunde main video */}
-        <div className="grid gap-10 md:grid-cols-2 items-start">
+        <div className="grid gap-10 md:grid-cols-2 items-start my-8">
           {/* Text */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -75,6 +75,54 @@ export function TestimonyVideosSection() {
               </span>
               <span className="text-[0.75rem] bg-black/40 px-2 py-1 rounded-full">Jemima Osunde</span>
             </div>
+          </motion.div>
+        </div>
+
+        {/* Dr. Teniola Akirindolu-Michaels featured video */}
+        <div className="grid gap-10 md:grid-cols-2 items-start my-8">
+          {/* Featured video */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg"
+          >
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            <video
+              className="w-full h-full max-h-[360px] object-cover"
+              controls
+              src="https://osreqk6mdzu0hrz8.public.blob.vercel-storage.com/syndicatebio/synndicate%20bio%202026%20Final.mp4"
+            />
+            <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-card-foreground/90">
+              <span className="px-2 py-1 rounded-full bg-black/50 text-[0.7rem] font-semibold uppercase tracking-[0.16em]">
+                Featured Story
+              </span>
+              <span className="text-[0.75rem] bg-black/40 px-2 py-1 rounded-full">
+                Dr. Teniola Akirindolu-Michaels
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-4"
+          >
+            <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Family history. Early signals.
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+              In cancer care, family history is often the first signal.
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground max-w-xl">
+              After losing her father to prostate cancer and seeing her mother survive breast cancer,
+              Dr. Teniola Akirindolu-Michaels chose genetic testing to understand her own risk. Watch
+              her story.
+            </p>
           </motion.div>
         </div>
 
