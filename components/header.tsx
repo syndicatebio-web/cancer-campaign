@@ -10,24 +10,21 @@ export function Header() {
           <span className="font-semibold text-lg text-foreground">SyndicateBio</span>
         </div>
         <nav className="hidden md:flex items-center gap-6">
-          <a href="#services" className="text-sm text-muted-foreground hover:text-foreground transition">
-            Services
+          <a href="#pledges" className="text-sm text-muted-foreground hover:text-foreground transition">
+            Pledges
           </a>
-          <a href="#why" className="text-sm text-muted-foreground hover:text-foreground transition">
-            Why Us
-          </a>
-          <a href="#family" className="text-sm text-muted-foreground hover:text-foreground transition">
-            Family First
+          <a href="#stories" className="text-sm text-muted-foreground hover:text-foreground transition">
+            Testimonies
           </a>
           <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground transition">
             Admin
           </a>
           <ThemeToggle />
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">
-            Get Started
-          </button>
         </nav>
         <div className="md:hidden flex items-center gap-4">
+          <a href="#pledges" className="text-sm text-muted-foreground hover:text-foreground">Pledges</a>
+          <a href="#stories" className="text-sm text-muted-foreground hover:text-foreground">Testimonies</a>
+          <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground">Admin</a>
           <ThemeToggle />
         </div>
       </div>

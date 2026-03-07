@@ -7,9 +7,11 @@ import { Upload, Loader2 } from 'lucide-react'
 
 interface SubmissionFormProps {
   onSubmit: () => void
+  /** When false (e.g. anonymous pledge), photo upload and filter are hidden. */
+  allowPhoto?: boolean
 }
 
-export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
+export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormProps) {
   const [username, setUsername] = useState('')
   const [message, setMessage] = useState('')
   const [image, setImage] = useState<File | null>(null)
@@ -63,9 +65,13 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
     }
   }
 
+  const canSubmit = allowPhoto
+    ? username && (message || preview)
+    : username && message
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!username || (!message && !preview)) return
+    if (!canSubmit) return
 
     try {
       setLoading(true)
@@ -75,8 +81,8 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
         body: JSON.stringify({
           username,
           message,
-          imageUrl: filteredImage || preview || null,
-          filterApplied: preview ? selectedFilter : 'none',
+          imageUrl: allowPhoto ? (filteredImage || preview || null) : null,
+          filterApplied: allowPhoto && preview ? selectedFilter : 'none',
         }),
       })
 
@@ -124,34 +130,37 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Share your affirmation or message (optional if uploading an image)..."
+          placeholder={allowPhoto ? "Share your affirmation or message (optional if uploading an image)..." : "Share your pledge or message..."}
           rows={4}
+          required={!allowPhoto}
           className="w-full px-4 py-2 border border-border bg-background text-foreground rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-4">
-          Add a Photo (Optional)
-        </label>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors bg-background"
-        >
-          <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
-          <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageSelect}
-          className="hidden"
-        />
-      </div>
+      {allowPhoto && (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-4">
+              Add a Photo (Optional)
+            </label>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors bg-background"
+            >
+              <Upload className="mx-auto mb-2 text-muted-foreground" size={32} />
+              <p className="text-sm text-muted-foreground">Click to upload or drag and drop</p>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+          </div>
 
-      {preview && (
+          {preview && (
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">Select Filter</p>
@@ -197,11 +206,13 @@ export function SubmissionForm({ onSubmit }: SubmissionFormProps) {
             )}
           </div>
         </div>
+          )}
+        </>
       )}
 
       <button
         type="submit"
-        disabled={loading || !username || (!message && !preview)}
+        disabled={loading || !canSubmit}
         className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 disabled:bg-muted font-bold text-lg"
       >
         {loading ? 'Submitting...' : 'Add Your Note'}
