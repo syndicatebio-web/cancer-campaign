@@ -3,19 +3,25 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 export function Header() {
   const [open, setOpen] = useState(false)
+  const { resolvedTheme } = useTheme()
 
   const close = () => setOpen(false)
+
+  const logoSrc =
+    resolvedTheme === 'dark'
+      ? '/direct_by_syndicate_bio_pry_white.svg'
+      : '/direct_by_syndicate_bio_pry_darkblue.svg'
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm border-b border-border">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Image src="/logo-icon.svg" alt="SyndicateBio logo" width={32} height={32} priority />
-          <span className="font-semibold text-lg text-foreground">SyndicateBio</span>
+          <Image src={logoSrc} alt="Direct by SyndicateBio logo" width={140} height={32} priority />
         </div>
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
