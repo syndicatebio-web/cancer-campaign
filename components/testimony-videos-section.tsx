@@ -11,17 +11,17 @@ const survivorVideos = [
   {
     id: 3,
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/MIDE-Single-2026-02-23T19-10-18.805Z.mp4',
-    label: 'Survivor Story 1',
+    label: '',
   },
   {
     id: 4,
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/OCHAI-FULL-2026-02-23T19-17-08.185Z.mp4',
-    label: 'Survivor Story 2',
+    label: '',
   },
   {
     id: 5,
     file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/ESTHER-Single-2026-02-23T18-50-11.655Z.mp4',
-    label: 'Survivor Story 3',
+    label: '',
   },
 ]
 
@@ -86,7 +86,7 @@ export function TestimonyVideosSection() {
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg"
+            className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg order-2 md:order-1"
           >
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <video
@@ -110,7 +110,7 @@ export function TestimonyVideosSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6 }}
-            className="space-y-4"
+            className="space-y-4 order-1 md:order-2"
           >
             <p className="text-xs md:text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Family history. Early signals.
@@ -161,9 +161,9 @@ export function TestimonyVideosSection() {
                 <video className="w-full h-72 object-cover" controls src={video.file} />
                 <div className="p-3 flex items-center justify-between text-xs text-muted-foreground">
                   <span className="font-medium text-foreground">{video.label}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-muted text-[0.7rem] uppercase tracking-[0.14em]">
+                  {/* <span className="px-2 py-0.5 rounded-full bg-muted text-[0.7rem] uppercase tracking-[0.14em]">
                     Survivor
-                  </span>
+                  </span> */}
                 </div>
               </motion.article>
             ))}
