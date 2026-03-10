@@ -131,11 +131,26 @@ export function SubmissionsCanvas() {
             className="mb-6"
           >
             <h1 className="text-5xl md:text-7xl font-bold text-center text-foreground mb-4 leading-tight flex flex-col items-center">
+              {/* Mobile: three-line version */}
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="block md:hidden text-center text-4xl font-extrabold"
+              >
+                Cancer Does Not
+                <br />
+                Have The Final
+                <br />
+                <span className="text-primary">Word.</span>
+              </motion.span>
+
+              {/* Desktop / tablet: original two-line animated version */}
               <motion.span
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-center"
+                className="hidden md:block text-center"
               >
                 "Cancer Does Not 
               </motion.span>
@@ -143,7 +158,7 @@ export function SubmissionsCanvas() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
-                className="text-center text-primary"
+                className="hidden md:block text-center text-primary"
               >
                 Have the Final Word."
               </motion.span>
