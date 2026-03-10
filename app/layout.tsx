@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: 'SyndicateBio - Accessible Genetic Testing in Nigeria',
   description: 'SyndicateBio makes genetic testing accessible, affordable, and locally available. Understand inherited health risks and act early through Direct by SyndicateBio.',
   generator: 'v0.app',
+  icons: {
+    icon: '/logo-icon.svg',
+    shortcut: '/logo-icon.svg',
+    apple: '/logo-icon.svg',
+  },
 }
 
 export default function RootLayout({
