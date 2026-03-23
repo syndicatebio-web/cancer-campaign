@@ -36,6 +36,17 @@ const survivorVideos: SurvivorVideo[] = [
   },
 ]
 
+const featuredVideos = {
+  jemima: {
+    source: 'https://youtu.be/c1tC6nmIzv8?si=i4LaFf41YWjWvYlg',
+    type: 'youtube' as const,
+  },
+  teniola: {
+    source: 'https://youtu.be/7jqVdcxSelc?si=ouh9CJ6WTkRwHsFt',
+    type: 'youtube' as const,
+  },
+}
+
 function getYoutubeEmbedUrl(url: string) {
   const watchUrlMatch = url.match(/[?&]v=([^&]+)/)
   if (watchUrlMatch) return `https://www.youtube.com/embed/${watchUrlMatch[1]}`
@@ -88,14 +99,21 @@ export function TestimonyVideosSection() {
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg"
+            className="relative h-[360px] overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg"
           >
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            <video
-              className="w-full h-full max-h-[360px] object-cover"
-              controls
-              src="https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/Syndicate-testimony-1%20.MOV"
-            />
+            {featuredVideos.jemima.type === 'youtube' ? (
+              <iframe
+                className="w-full h-full"
+                src={getYoutubeEmbedUrl(featuredVideos.jemima.source)}
+                title="Jemima Osunde testimony video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            ) : (
+              <video className="w-full h-full object-cover" controls src={featuredVideos.jemima.source} />
+            )}
             <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-card-foreground/90">
               <span className="px-2 py-1 rounded-full bg-black/50 text-[0.7rem] font-semibold uppercase tracking-[0.16em]">
                 Featured Testimony
@@ -113,14 +131,21 @@ export function TestimonyVideosSection() {
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg order-2 md:order-1"
+            className="relative h-[360px] overflow-hidden rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm shadow-lg order-2 md:order-1"
           >
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            <video
-              className="w-full h-full max-h-[360px] object-cover"
-              controls
-              src="https://osreqk6mdzu0hrz8.public.blob.vercel-storage.com/syndicatebio/synndicate%20bio%202026%20Final.mp4"
-            />
+            {featuredVideos.teniola.type === 'youtube' ? (
+              <iframe
+                className="w-full h-full"
+                src={getYoutubeEmbedUrl(featuredVideos.teniola.source)}
+                title="Dr. Teniola Akirindolu-Michaels featured story video"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            ) : (
+              <video className="w-full h-full object-cover" controls src={featuredVideos.teniola.source} />
+            )}
             <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-xs text-card-foreground/90">
               <span className="px-2 py-1 rounded-full bg-black/50 text-[0.7rem] font-semibold uppercase tracking-[0.16em]">
                 Featured Story

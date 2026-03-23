@@ -17,6 +17,7 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
   const [image, setImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string>('')
   const [selectedFilter, setSelectedFilter] = useState('defiant')
+  const [appliedFilter, setAppliedFilter] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [filteredImage, setFilteredImage] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -32,6 +33,8 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
     const file = e.target.files?.[0]
     if (file) {
       setImage(file)
+      setFilteredImage('')
+      setAppliedFilter(null)
       const reader = new FileReader()
       reader.onloadend = () => {
         setPreview(reader.result as string)
@@ -57,6 +60,7 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
       if (response.ok) {
         const data = await response.json()
         setFilteredImage(data.image || preview)
+        setAppliedFilter(selectedFilter)
       }
     } catch (error) {
       console.error('[v0] Error applying filter:', error)
@@ -65,9 +69,11 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
     }
   }
 
+  const requiresAppliedFilter = allowPhoto && !!preview
+  const hasAppliedFilter = !!(filteredImage && appliedFilter)
   const canSubmit = allowPhoto
-    ? username && (message || preview)
-    : username && message
+    ? !!(username && (message || preview) && (!requiresAppliedFilter || hasAppliedFilter))
+    : !!(username && message)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -82,7 +88,7 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
           username,
           message,
           imageUrl: allowPhoto ? (filteredImage || preview || null) : null,
-          filterApplied: allowPhoto && preview ? selectedFilter : 'none',
+          filterApplied: allowPhoto && preview ? (appliedFilter ?? 'none') : 'none',
         }),
       })
 
@@ -93,6 +99,7 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
         setPreview('')
         setFilteredImage('')
         setSelectedFilter('defiant')
+        setAppliedFilter(null)
         onSubmit()
       }
     } catch (error) {
@@ -169,7 +176,11 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
                 <button
                   key={filter.id}
                   type="button"
-                  onClick={() => setSelectedFilter(filter.id)}
+                  onClick={() => {
+                    setSelectedFilter(filter.id)
+                    setAppliedFilter(null)
+                    setFilteredImage('')
+                  }}
                   className={`p-3 rounded-lg font-medium transition-all ${
                     selectedFilter === filter.id
                       ? 'bg-primary text-primary-foreground ring-2 ring-primary/60'
@@ -208,6 +219,12 @@ export function SubmissionForm({ onSubmit, allowPhoto = true }: SubmissionFormPr
         </div>
           )}
         </>
+      )}
+
+      {requiresAppliedFilter && !hasAppliedFilter && (
+        <p className="text-sm text-destructive">
+          Please apply a filter to your uploaded image before submitting.
+        </p>
       )}
 
       <button
