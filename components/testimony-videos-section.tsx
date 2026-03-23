@@ -2,28 +2,55 @@
 
 import { motion } from 'framer-motion'
 
-const survivorVideos = [
+type SurvivorVideo = {
+  id: number
+  source: string
+  type: 'file' | 'youtube'
+  label: string
+}
+
+const survivorVideos: SurvivorVideo[] = [
   {
     id: 2,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/Main.mp4',
+    source: 'https://youtu.be/tVYuOgKUvzo?si=Eb4W5TPwwdRGBZkP',
+    type: 'youtube',
     label: 'Overview',
   },
   {
     id: 3,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/MIDE-Single-2026-02-23T19-10-18.805Z.mp4',
+    source: 'https://youtube.com/shorts/g-X-BU2YvRA?si=LApo6PY8iWIwRPsI',
+    type: 'youtube',
     label: '',
   },
   {
     id: 4,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/OCHAI-FULL-2026-02-23T19-17-08.185Z.mp4',
+    source: 'https://youtube.com/shorts/dk292zli0Ac?si=j1MXxHqWKifXBzlT',
+    type: 'youtube',
     label: '',
   },
   {
     id: 5,
-    file: 'https://hhvxqq0spu9scx5q.public.blob.vercel-storage.com/syndicate-bio/ESTHER-Single-2026-02-23T18-50-11.655Z.mp4',
+    source: 'https://youtube.com/shorts/1bv-CBiTPs0?si=3dt_8I_ohmPlc15n',
+    type: 'youtube',
     label: '',
   },
 ]
+
+function getYoutubeEmbedUrl(url: string) {
+  const watchUrlMatch = url.match(/[?&]v=([^&]+)/)
+  if (watchUrlMatch) return `https://www.youtube.com/embed/${watchUrlMatch[1]}`
+
+  const shortUrlMatch = url.match(/youtu\.be\/([^?&/]+)/)
+  if (shortUrlMatch) return `https://www.youtube.com/embed/${shortUrlMatch[1]}`
+
+  const shortsUrlMatch = url.match(/youtube\.com\/shorts\/([^?&/]+)/)
+  if (shortsUrlMatch) return `https://www.youtube.com/embed/${shortsUrlMatch[1]}`
+
+  const embedUrlMatch = url.match(/youtube\.com\/embed\/([^?&/]+)/)
+  if (embedUrlMatch) return `https://www.youtube.com/embed/${embedUrlMatch[1]}`
+
+  return url
+}
 
 
 export function TestimonyVideosSection() {
@@ -158,7 +185,20 @@ export function TestimonyVideosSection() {
                 whileHover={{ y: -6, scale: 1.02, boxShadow: '0 16px 30px rgba(0,0,0,0.15)' }}
                 className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/90 backdrop-blur-sm shadow-sm"
               >
-                <video className="w-full h-72 object-cover" controls src={video.file} />
+                {video.type === 'youtube' ? (
+                  <div className="relative w-full h-72">
+                    <iframe
+                      className="w-full h-full"
+                      src={getYoutubeEmbedUrl(video.source)}
+                      title={video.label || 'Survivor testimony video'}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <video className="w-full h-72 object-cover" controls src={video.source} />
+                )}
                 <div className="p-3 flex items-center justify-between text-xs text-muted-foreground">
                   <span className="font-medium text-foreground">{video.label}</span>
                   {/* <span className="px-2 py-0.5 rounded-full bg-muted text-[0.7rem] uppercase tracking-[0.14em]">
